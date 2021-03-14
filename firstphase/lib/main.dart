@@ -47,9 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void updateList(String filePath, bool) {
-    stderr.writeln(filePath);
-
+  void expand(String filePath) {
     List<String> paths = filePath.split('/');
     paths.removeWhere((element) => element.isEmpty ? true : false);
 
@@ -62,15 +60,41 @@ class _MyHomePageState extends State<MyHomePage> {
     int treeIndex = 0;
     for (; treeIndex < widget.filesTree.length; treeIndex++) {
       if (widget.filesTree[treeIndex].filePath == filePath) {
+        widget.filesTree[treeIndex].selecting = true;
         treeIndex++;
         break;
       }
     }
 
     for (final key in selectedChildrentFiles.keys) {
-      widget.filesTree.insert(treeIndex, FileInfo(true, 2, key));
+      widget.filesTree
+          .insert(treeIndex, FileInfo(false, 2, filePath + '/' + key));
     }
 
     setState(() {});
+  }
+
+  void collapse(String filePath) {
+    int treeIndex = 0;
+    for (; treeIndex < widget.filesTree.length; treeIndex++) {
+      if (widget.filesTree[treeIndex].filePath == filePath) {
+        widget.filesTree[treeIndex].selecting = false;
+        treeIndex++;
+      } else if (widget.filesTree[treeIndex].filePath.contains(filePath)) {
+        widget.filesTree.remove(widget.filesTree[treeIndex]);
+      }
+    }
+
+    setState(() {});
+  }
+
+  void updateList(String filePath, bool selecting) {
+    stderr.writeln(filePath);
+
+    if (selecting) {
+      collapse(filePath);
+    } else {
+      expand(filePath);
+    }
   }
 }
